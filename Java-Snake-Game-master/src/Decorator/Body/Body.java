@@ -6,9 +6,9 @@ import java.awt.*;
 
 public abstract class Body {
 
-    int puntos;
-    Image body;
-    Image head;
+    public Image body;
+    public Image head;
+    public String color;
 
     public abstract Image setcolor();
 

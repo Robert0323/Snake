@@ -5,12 +5,18 @@ import Decorator.Body.Body;
 import javax.swing.*;
 import java.awt.*;
 
-public class Green {
+public class Green extends Colors {
     Body body;
 
     public Green(Body pbody)
     {
         this.body=pbody;
+    }
+
+    @Override
+    public void setname(){
+
+        this.color = "Green";
     }
 
     @Override

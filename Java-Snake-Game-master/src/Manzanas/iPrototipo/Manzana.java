@@ -10,7 +10,7 @@ import java.awt.*;
 
 
 public abstract class Manzana {
-    private Color color;
+    public Color color;
     private Image imagen;
 
     public Image getImagen() {

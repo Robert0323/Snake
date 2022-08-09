@@ -6,6 +6,6 @@ import java.awt.*;
 
 public abstract class Colors extends Body {
 
-    public abstract Image setcolor();
+    public abstract void setname();
 
 }

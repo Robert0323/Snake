@@ -1,9 +1,15 @@
 package com.zetcode;
 
+import Decorator.Body.Body;
+import Decorator.Body.BodyClassic;
+import Decorator.Color.Green;
+import Decorator.Color.Orange;
+import Decorator.Color.Purple;
 import Manzanas.Prototipo.ManzanaAmarrilla;
 import Manzanas.Prototipo.ManzanaAzul;
 import Manzanas.Prototipo.ManzanaRoja;
 import Manzanas.iPrototipo.Manzana;
+import javafx.scene.control.Labeled;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -45,12 +51,18 @@ public class Board extends JPanel implements ActionListener {
 
     private Timer timer;
     private Image ball;
-    private Image apple;
+    private Manzana apple;
     private Image head;
-    //add class color and prototype
+    //class color the prototype
     private Manzana Roja;
     private Manzana Amarrilla;
     private Manzana Azul;
+    //class body the decorator
+    private Body corps;
+    private Purple purple;
+    private Orange orange;
+    private Green green;
+    private Labeled field1;
 
 
     public Board() {
@@ -71,8 +83,15 @@ public class Board extends JPanel implements ActionListener {
 
     private void loadImages() {
 
-        ImageIcon iid = new ImageIcon("src/resources/dot.png");
+        /* ImageIcon iid = new ImageIcon("src/resources/dot.png");
         ball = iid.getImage();
+        ImageIcon iih = new ImageIcon("src/resources/head.png");
+        head = iih.getImage(); */
+
+        corps = new BodyClassic();
+
+        ball = corps.setcolor();
+        head = corps.head;
 
         ImageIcon irj = new ImageIcon("src/resources/applered.png");
         Roja = new ManzanaRoja(irj.getImage());
@@ -80,26 +99,36 @@ public class Board extends JPanel implements ActionListener {
         Amarrilla = new ManzanaAmarrilla(iaz.getImage());
         ImageIcon iam = new ImageIcon("src/resources/appleblue.png");
         Azul = new ManzanaAzul(iam.getImage());
-        apple = Azul.getImagen();
 
-        ImageIcon iih = new ImageIcon("src/resources/head.png");
-        head = iih.getImage();
+        //apple = Azul;
+
     }
 
     private void chagecolor(){
         Random generadorAleatorios = new Random();
-        int numeroAleatorio = 1+generadorAleatorios.nextInt(3);
-        if (numeroAleatorio == 1){
-            apple = Azul.getImagen();
-        }if(numeroAleatorio == 2){
-            apple = Roja.getImagen();
+        int numeroAleatorio = generadorAleatorios.nextInt(3);
+        if (numeroAleatorio == 0){
+            apple = Azul;
+        }else if(numeroAleatorio == 1){
+            apple = Roja;
         }else{
-            apple = Amarrilla.getImagen();
+            apple = Amarrilla;
         }
+    }
+    private void changeBodyColor(){
+        if (apple.getColor().getNombre() == "red"){
+            corps = new Purple(corps);
+        }else if (apple.getColor().getNombre() == "blue"){
+            corps = new Orange(corps);
+        }else{
+            corps = new Green(corps);
+        }
+        ball = corps.setcolor();
     }
     private void initGame() {
 
         dots = 3;
+
 
         for (int z = 0; z < dots; z++) {
             x[z] = 50 - z * 10;
@@ -107,6 +136,7 @@ public class Board extends JPanel implements ActionListener {
         }
         
         locateApple();
+        chagecolor();
 
         timer = new Timer(DELAY, this);
         timer.start();
@@ -124,7 +154,7 @@ public class Board extends JPanel implements ActionListener {
         if (inGame) {
 
 
-            g.drawImage(apple, apple_x, apple_y, this);
+            g.drawImage(apple.getImagen(), apple_x, apple_y, this);
 
             for (int z = 0; z < dots; z++) {
                 if (z == 0) {
@@ -158,6 +188,7 @@ public class Board extends JPanel implements ActionListener {
         if ((x[0] == apple_x) && (y[0] == apple_y)) {
 
             dots++;
+            changeBodyColor();
             chagecolor();
             locateApple();
         }

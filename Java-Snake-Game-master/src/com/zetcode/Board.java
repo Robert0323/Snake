@@ -82,9 +82,6 @@ public class Board extends JPanel implements ActionListener {
         Azul = new ManzanaAzul(iam.getImage());
         apple = Azul.getImagen();
 
-
-        //apple = iia.getImage();
-
         ImageIcon iih = new ImageIcon("src/resources/head.png");
         head = iih.getImage();
     }

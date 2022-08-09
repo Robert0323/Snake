@@ -9,6 +9,7 @@ import Manzanas.Prototipo.ManzanaAmarrilla;
 import Manzanas.Prototipo.ManzanaAzul;
 import Manzanas.Prototipo.ManzanaRoja;
 import Manzanas.iPrototipo.Manzana;
+import Memento.Memento;
 import javafx.scene.control.Labeled;
 
 import java.awt.Color;
@@ -34,14 +35,19 @@ public class Board extends JPanel implements ActionListener {
     private final int DOT_SIZE = 10;
     private final int ALL_DOTS = 900;
     private final int RAND_POS = 29;
-    private final int DELAY = 140;
 
-    private final int x[] = new int[ALL_DOTS];
-    private final int y[] = new int[ALL_DOTS];
+    //class color the prototype
+    private Manzana Roja;
+    private Manzana Amarrilla;
+    private Manzana Azul;
 
-    private int dots;
-    private int apple_x;
-    private int apple_y;
+    //class color the decorator
+    private Purple purple;
+    private Orange orange;
+    private Green green;
+
+    private int x[] = new int[ALL_DOTS];
+    private int y[] = new int[ALL_DOTS];
 
     private boolean leftDirection = false;
     private boolean rightDirection = true;
@@ -49,21 +55,26 @@ public class Board extends JPanel implements ActionListener {
     private boolean downDirection = false;
     private boolean inGame = true;
 
+    //For memento
+
+    private int dots;
+    private int apple_x;
+    private int apple_y;
+
     private Timer timer;
     private Image ball;
     private Manzana apple;
     private Image head;
-    //class color the prototype
-    private Manzana Roja;
-    private Manzana Amarrilla;
-    private Manzana Azul;
+
     //class body the decorator
     private Body corps;
-    private Purple purple;
-    private Orange orange;
-    private Green green;
-    private Labeled field1;
 
+    private int points;
+    private int lives = 3;
+    private int DELAY = 140;
+
+    private int chek=0;
+    private Memento memento;
 
     public Board() {
         
@@ -88,11 +99,13 @@ public class Board extends JPanel implements ActionListener {
         ImageIcon iih = new ImageIcon("src/resources/head.png");
         head = iih.getImage(); */
 
-        corps = new BodyClassic();
+        //Create snake body classic or initial( green and red) with the decorator pattern
 
+        corps = new BodyClassic();
         ball = corps.setcolor();
         head = corps.head;
 
+        //Create Manzana objects, for later use in game change points
         ImageIcon irj = new ImageIcon("src/resources/applered.png");
         Roja = new ManzanaRoja(irj.getImage());
         ImageIcon iaz = new ImageIcon("src/resources/appleyellow.png");
@@ -100,11 +113,11 @@ public class Board extends JPanel implements ActionListener {
         ImageIcon iam = new ImageIcon("src/resources/appleblue.png");
         Azul = new ManzanaAzul(iam.getImage());
 
-        //apple = Azul;
-
     }
 
     private void chagecolor(){
+
+        //Use random number for change apple color
         Random generadorAleatorios = new Random();
         int numeroAleatorio = generadorAleatorios.nextInt(3);
         if (numeroAleatorio == 0){
@@ -114,6 +127,7 @@ public class Board extends JPanel implements ActionListener {
         }else{
             apple = Amarrilla;
         }
+
     }
     private void changeBodyColor(){
         if (apple.getColor().getNombre() == "red"){
@@ -128,7 +142,7 @@ public class Board extends JPanel implements ActionListener {
     private void initGame() {
 
         dots = 3;
-
+        points = 0;
 
         for (int z = 0; z < dots; z++) {
             x[z] = 50 - z * 10;
@@ -137,6 +151,8 @@ public class Board extends JPanel implements ActionListener {
         
         locateApple();
         chagecolor();
+
+        memento = new Memento(dots,apple_x,apple_y,timer,ball,apple,head ,corps,points,lives,DELAY,x,y);
 
         timer = new Timer(DELAY, this);
         timer.start();
@@ -152,8 +168,10 @@ public class Board extends JPanel implements ActionListener {
     private void doDrawing(Graphics g) {
         
         if (inGame) {
-
-
+            FontMetrics metrics = getFontMetrics(g.getFont());
+            g.drawString("Score: "+points,(B_WIDTH-50- metrics.stringWidth("Score: "+points))/2,g.getFont().getSize());
+            g.drawString("Lives: "+lives,(B_WIDTH+50 - metrics.stringWidth("Lives: "+lives))/2,g.getFont().getSize());
+            g.drawString(String.valueOf(points),0,0);
             g.drawImage(apple.getImagen(), apple_x, apple_y, this);
 
             for (int z = 0; z < dots; z++) {
@@ -174,7 +192,7 @@ public class Board extends JPanel implements ActionListener {
 
     private void gameOver(Graphics g) {
         
-        String msg = "Game Over";
+        String msg = String.valueOf("Final score:  "+points+"\n"+".  Game Over");
         Font small = new Font("Helvetica", Font.BOLD, 14);
         FontMetrics metr = getFontMetrics(small);
 
@@ -183,11 +201,35 @@ public class Board extends JPanel implements ActionListener {
         g.drawString(msg, (B_WIDTH - metr.stringWidth(msg)) / 2, B_HEIGHT / 2);
     }
 
+    void restore(){
+        dots = memento.get_Snapshoot().getDots();
+        apple_x = memento.get_Snapshoot().getApple_x();
+        apple_y = memento.get_Snapshoot().getApple_y();
+        timer = memento.get_Snapshoot().getTimer();
+        ball = memento.get_Snapshoot().getBall();
+        apple = memento.get_Snapshoot().getApple();
+        head = memento.get_Snapshoot().getHead();
+        corps = memento.get_Snapshoot().getCorps();
+        points = memento.get_Snapshoot().getPoints();
+        DELAY = memento.get_Snapshoot().getDELAY();
+        x = memento.get_Snapshoot().getX();
+        y = memento.get_Snapshoot().getY();
+    }
+
     private void checkApple() {
 
         if ((x[0] == apple_x) && (y[0] == apple_y)) {
 
-            dots++;
+            dots++;/*
+            if (chek >= 5){
+                memento.restore();
+            }*/
+            points += apple.getColor().getPuntos();
+            //Stay here for where the snake eat the apple change velocity
+            if(DELAY > 100){
+                DELAY = DELAY-4;
+                timer.setDelay(DELAY);
+            }
             changeBodyColor();
             chagecolor();
             locateApple();
@@ -223,24 +265,49 @@ public class Board extends JPanel implements ActionListener {
         for (int z = dots; z > 0; z--) {
 
             if ((z > 4) && (x[0] == x[z]) && (y[0] == y[z])) {
-                inGame = false;
+                if (lives !=0 ){
+                    lives--;
+                    restore();
+                }else {
+                    inGame = false;
+                }
             }
         }
 
         if (y[0] >= B_HEIGHT) {
-            inGame = false;
+            if (lives !=0 ){
+                lives--;
+                restore();
+            }else {
+                inGame = false;
+            }
         }
 
         if (y[0] < 0) {
-            inGame = false;
+            if (lives !=0 ){
+                lives--;
+                restore();
+            }else {
+                inGame = false;
+            }
         }
 
         if (x[0] >= B_WIDTH) {
-            inGame = false;
+            if (lives !=0 ){
+                lives--;
+                restore();
+            }else {
+                inGame = false;
+            }
         }
 
         if (x[0] < 0) {
-            inGame = false;
+            if (lives !=0 ){
+                lives--;
+                restore();
+            }else {
+                inGame = false;
+            }
         }
         
         if (!inGame) {

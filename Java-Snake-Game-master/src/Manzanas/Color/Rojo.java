@@ -6,7 +6,7 @@ public class Rojo extends Color{
 
     public Rojo() {
         this.setNombre( "red");
-        this.setPuntos(2);
+        this.setPuntos(1);
 
     }
 

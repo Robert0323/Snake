@@ -10,7 +10,8 @@ import Manzanas.Prototipo.ManzanaAzul;
 import Manzanas.Prototipo.ManzanaRoja;
 import Manzanas.iPrototipo.Manzana;
 import Memento.Memento;
-import javafx.scene.control.Labeled;
+import Memento.Origin;
+import Memento.Caretake;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -73,12 +74,16 @@ public class Board extends JPanel implements ActionListener {
     private int lives = 3;
     private int DELAY = 140;
 
-    private int chek=0;
+    private int check=0;
     private Memento memento;
+    private Origin origin = new Origin();
+    private Caretake care = new Caretake();
+
 
     public Board() {
         
         initBoard();
+
     }
     
     private void initBoard() {
@@ -90,6 +95,7 @@ public class Board extends JPanel implements ActionListener {
         setPreferredSize(new Dimension(B_WIDTH, B_HEIGHT));
         loadImages();
         initGame();
+
     }
 
     private void loadImages() {
@@ -152,7 +158,9 @@ public class Board extends JPanel implements ActionListener {
         locateApple();
         chagecolor();
 
-        memento = new Memento(dots,apple_x,apple_y,timer,ball,apple,head ,corps,points,lives,DELAY,x,y);
+        createMemento();
+        Actualizar_Memento();
+        //memento = new Memento(dots,apple_x,apple_y,timer,ball,apple,head ,corps,points,lives,DELAY,x,y);
 
         timer = new Timer(DELAY, this);
         timer.start();
@@ -189,6 +197,13 @@ public class Board extends JPanel implements ActionListener {
             gameOver(g);
         }        
     }
+    private void createMemento(){ origin.nuevoEstado(dots,apple_x,apple_y,timer,ball,apple,head ,corps,points,lives,DELAY,x,y); }
+
+    private void Actualizar_Memento() {care.setMemento( origin.crearMemento() );}
+
+    public void Restaurar_Memento() {
+        origin.restaurarMemento( care.getMemento() );
+    }
 
     private void gameOver(Graphics g) {
         
@@ -199,31 +214,38 @@ public class Board extends JPanel implements ActionListener {
         g.setColor(Color.white);
         g.setFont(small);
         g.drawString(msg, (B_WIDTH - metr.stringWidth(msg)) / 2, B_HEIGHT / 2);
+
     }
 
     void restore(){
-        dots = memento.get_Snapshoot().getDots();
-        apple_x = memento.get_Snapshoot().getApple_x();
-        apple_y = memento.get_Snapshoot().getApple_y();
-        timer = memento.get_Snapshoot().getTimer();
-        ball = memento.get_Snapshoot().getBall();
-        apple = memento.get_Snapshoot().getApple();
-        head = memento.get_Snapshoot().getHead();
-        corps = memento.get_Snapshoot().getCorps();
-        points = memento.get_Snapshoot().getPoints();
-        DELAY = memento.get_Snapshoot().getDELAY();
-        x = memento.get_Snapshoot().getX();
-        y = memento.get_Snapshoot().getY();
+        Restaurar_Memento();
+        dots = origin._Estado.getDots();
+        apple_x = origin._Estado.getApple_x();
+        apple_y = origin._Estado.getApple_y();
+        ball = origin._Estado.getBall();
+        apple = origin._Estado.getApple();
+        head = origin._Estado.getHead();
+        corps = origin._Estado.getCorps();
+        points = origin._Estado.getPoints();
+        DELAY = origin._Estado.getDELAY();
+        for (int z = 0; z < dots; z++) {
+            x[z] = apple_x - z * 10;
+            y[z] = apple_y;
+        }
     }
 
     private void checkApple() {
 
         if ((x[0] == apple_x) && (y[0] == apple_y)) {
 
-            dots++;/*
-            if (chek >= 5){
-                memento.restore();
-            }*/
+            dots++;
+            if (check >= 5){
+                createMemento();
+                Actualizar_Memento();
+                check=0;
+            }else{
+                check += points;
+            }
             points += apple.getColor().getPuntos();
             //Stay here for where the snake eat the apple change velocity
             if(DELAY > 100){
@@ -332,6 +354,7 @@ public class Board extends JPanel implements ActionListener {
             checkApple();
             checkCollision();
             move();
+
         }
 
         repaint();

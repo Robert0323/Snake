@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Origin {
-    private Snapshoot _Estado;
+    public Snapshoot _Estado;
 
     public Origin() {
         _Estado = new Snapshoot();

@@ -9,8 +9,8 @@ import java.util.ArrayList;
 
 public class Snapshoot {
 
-    private int x[] = new int[900];
-    private int y[] = new int[900];
+    private int x[];
+    private int y[];
 
     private int dots;
     private int apple_x;
@@ -28,7 +28,8 @@ public class Snapshoot {
     private int lives = 3;
     private int DELAY = 140;
 
-    public void nuevaInstantanea(int dots, int apple_x, int apple_y, Timer timer, Image ball, Manzana apple, Image head, Body corps, int points, int lives, int DELAY,int[] x, int[] y) {
+    public void nuevaInstantanea(int dots, int apple_x, int apple_y, Timer timer, Image ball, Manzana apple, Image head, Body corps, int points, int lives, int DELAY,int[] x, int[] y){
+
         this.dots = dots;
         this.apple_x = apple_x;
         this.apple_y = apple_y;
@@ -42,6 +43,7 @@ public class Snapshoot {
         this.DELAY = DELAY;
         this.x = x;
         this.y = y;
+
     }
 
     public int[] getX() {
